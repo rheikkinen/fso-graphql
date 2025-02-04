@@ -2,7 +2,6 @@ import { useState } from 'react';
 import Authors from './components/Authors';
 import Books from './components/Books';
 import NewBook from './components/NewBook';
-import BirthYearForm from './components/BirthYearForm';
 
 const App = () => {
   const [page, setPage] = useState('authors');
@@ -13,7 +12,6 @@ const App = () => {
         <button onClick={() => setPage('authors')}>Authors</button>
         <button onClick={() => setPage('books')}>Books</button>
         <button onClick={() => setPage('add')}>Add book</button>
-        <button onClick={() => setPage('edit-author')}>Edit author</button>
       </div>
 
       <Authors show={page === 'authors'} />
@@ -21,8 +19,6 @@ const App = () => {
       <Books show={page === 'books'} />
 
       <NewBook show={page === 'add'} />
-
-      <BirthYearForm show={page === 'edit-author'} />
     </div>
   );
 };

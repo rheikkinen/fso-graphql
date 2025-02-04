@@ -11,8 +11,6 @@ const BirthYearForm = (props) => {
     refetchQueries: [{ query: ALL_AUTHORS }],
   });
 
-  if (!props.show) return null;
-
   const submit = async (event) => {
     event.preventDefault();
 

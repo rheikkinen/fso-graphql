@@ -19,3 +19,24 @@ export const ALL_BOOKS = gql`
     }
   }
 `;
+
+export const NEW_BOOK = gql`
+  mutation NewBook(
+    $title: String!
+    $author: String!
+    $published: Int!
+    $genres: [String!]!
+  ) {
+    addBook(
+      title: $title
+      author: $author
+      published: $published
+      genres: $genres
+    ) {
+      title
+      author
+      published
+      genres
+    }
+  }
+`;

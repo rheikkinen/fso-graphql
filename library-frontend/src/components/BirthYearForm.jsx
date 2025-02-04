@@ -7,7 +7,7 @@ const BirthYearForm = (props) => {
   const [name, setName] = useState('');
   const [born, setBorn] = useState('');
 
-  const [changeBirthYear, result] = useMutation(EDIT_BIRTH_YEAR, {
+  const [changeBirthYear] = useMutation(EDIT_BIRTH_YEAR, {
     refetchQueries: [{ query: ALL_AUTHORS }],
   });
 
@@ -20,23 +20,20 @@ const BirthYearForm = (props) => {
     setBorn('');
   };
 
-  // useEffect(() => {
-  //   if (result.data && result.data.editNumber === null) {
-  //     setError('person not found');
-  //   }
-  // }, [result.data, setError]);
-
   return (
     <div>
       <h2>Change birth year of an author</h2>
 
       <form onSubmit={submit}>
         <div>
-          Name{' '}
-          <input
-            value={name}
-            onChange={({ target }) => setName(target.value)}
-          />
+          Choose author
+          <select onChange={({ target }) => setName(target.value)}>
+            {props.authors.map((author) => (
+              <option key={author.name} value={author.name}>
+                {author.name}
+              </option>
+            ))}
+          </select>
         </div>
         <div>
           Born{' '}

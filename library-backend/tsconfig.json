@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "rootDirs": ["src"],
+    "rootDir": ".",
     "outDir": "dist",
     "lib": ["es2020"],
     "target": "es2020",
@@ -8,5 +8,6 @@
     "moduleResolution": "node",
     "esModuleInterop": true,
     "types": ["node"]
-  }
+  },
+  "include": ["**/*.ts", "models/book.ts", "models/author.ts"]
 }

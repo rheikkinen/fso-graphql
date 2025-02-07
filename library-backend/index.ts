@@ -7,6 +7,7 @@ import Book from './models/book.js';
 mongoose.set('strictQuery', false);
 
 import 'dotenv/config';
+import { GraphQLError } from 'graphql';
 
 let authors = [
   {
@@ -176,11 +177,41 @@ const resolvers = {
 
       if (!author) {
         author = new Author({ name: args.author, born: null });
-        await author.save();
+        try {
+          await author.save();
+        } catch (error) {
+          if (error.name === 'ValidationError') {
+            throw new GraphQLError(error.message, {
+              extensions: { code: 'BAD_USER_INPUT', invalidArgs: args.author },
+            });
+          } else {
+            throw new GraphQLError('Saving author failed', {
+              extensions: {
+                code: 'BAD_USER_INPUT',
+                invalidArgs: args.author,
+              },
+            });
+          }
+        }
       }
 
       const book = new Book({ ...args, author });
-      await book.save();
+      try {
+        await book.save();
+      } catch (error) {
+        if (error.name === 'ValidationError') {
+          throw new GraphQLError(error.message, {
+            extensions: { code: 'BAD_USER_INPUT', invalidArgs: args },
+          });
+        } else {
+          throw new GraphQLError('Saving book failed', {
+            extensions: {
+              code: 'BAD_USER_INPUT',
+              invalidArgs: args,
+            },
+          });
+        }
+      }
       return book;
     },
     editAuthor: async (root, args) => {
@@ -190,7 +221,16 @@ const resolvers = {
 
       author.born = args.setBornTo;
 
-      await author.save();
+      try {
+        await author.save();
+      } catch (error) {
+        throw new GraphQLError('Saving author failed', {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            invalidArgs: args,
+          },
+        });
+      }
 
       return author;
     },

@@ -190,7 +190,14 @@ const resolvers = {
       return books;
     },
     allAuthors: async () => {
-      return Author.find({});
+      const authors = await Author.find({});
+      return authors.map((author) => {
+        return {
+          name: author.name,
+          born: author.born,
+          bookCount: Book.collection.countDocuments({ author: author._id }),
+        };
+      });
     },
     me: async (root, args, context) => context.currentUser,
   },

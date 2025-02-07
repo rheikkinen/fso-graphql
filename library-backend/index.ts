@@ -175,17 +175,13 @@ const resolvers = {
       let author = await Author.findOne({ name: args.author });
 
       if (!author) {
-        const newAuthor = new Author({ name: args.author, born: null });
-        await newAuthor.save();
-
-        const book = new Book({ ...args, author: newAuthor });
-        await book.save();
-        return book;
-      } else {
-        const book = new Book({ ...args, author });
-        await book.save();
-        return book;
+        author = new Author({ name: args.author, born: null });
+        await author.save();
       }
+
+      const book = new Book({ ...args, author });
+      await book.save();
+      return book;
     },
     editAuthor: async (root, args) => {
       const author = await Author.findOne({ name: args.name });

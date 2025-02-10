@@ -2,7 +2,7 @@ import { useQuery } from '@apollo/client';
 import { ALL_AUTHORS } from '../queries';
 import BirthYearForm from './BirthYearForm';
 
-const Authors = ({ show }) => {
+const Authors = ({ show, allowEdit }) => {
   const result = useQuery(ALL_AUTHORS);
 
   if (!show) {
@@ -32,7 +32,8 @@ const Authors = ({ show }) => {
           ))}
         </tbody>
       </table>
-      <BirthYearForm authors={authors} />
+
+      {allowEdit && <BirthYearForm authors={authors} />}
     </div>
   );
 };

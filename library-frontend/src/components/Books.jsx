@@ -1,6 +1,7 @@
 import { useQuery } from '@apollo/client';
 import { ALL_BOOKS } from '../queries';
 import { useEffect, useState } from 'react';
+import BookList from './BookList';
 
 const Books = (props) => {
   const result = useQuery(ALL_BOOKS);
@@ -62,22 +63,7 @@ const Books = (props) => {
       <p>
         Showing {activeGenre ? `books in genre ${activeGenre}` : 'all books'}
       </p>
-      <table>
-        <tbody>
-          <tr>
-            <th></th>
-            <th>author</th>
-            <th>published</th>
-          </tr>
-          {filteredBooks.map((a) => (
-            <tr key={a.title}>
-              <td>{a.title}</td>
-              <td>{a.author.name}</td>
-              <td>{a.published}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <BookList books={filteredBooks} />
     </div>
   );
 };

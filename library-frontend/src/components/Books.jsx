@@ -1,34 +1,47 @@
 import { useQuery } from '@apollo/client';
-import { ALL_BOOKS } from '../queries';
 import { useEffect, useState } from 'react';
+import { ALL_BOOKS, BOOKS_BY_GENRE } from '../queries';
 import BookList from './BookList';
 
 const Books = (props) => {
-  const result = useQuery(ALL_BOOKS);
-  const [genres, setGenres] = useState(new Set());
   const [activeGenre, setActiveGenre] = useState(null);
+  const [genres, setGenres] = useState(new Set());
+
+  const { data: bookData, loading: booksLoading } = useQuery(ALL_BOOKS);
+  const { data: filteredBookData, loading: filteredBooksLoading } = useQuery(
+    BOOKS_BY_GENRE,
+    {
+      variables: { genre: activeGenre },
+      skip: !activeGenre,
+    }
+  );
 
   useEffect(() => {
-    if (result.data) {
+    if (bookData) {
       const newGenreSet = new Set();
-      result.data.allBooks.forEach((book) =>
+      bookData.allBooks.forEach((book) =>
         book.genres.forEach((genre) => newGenreSet.add(genre))
       );
       setGenres(newGenreSet);
     }
-  }, [result.data]);
+  }, [bookData]);
 
   if (!props.show) {
     return null;
   }
 
-  if (result.loading) return <>Loading books...</>;
+  if (booksLoading || (activeGenre && filteredBooksLoading)) {
+    return <>Loading books...</>;
+  }
 
-  const { allBooks: books } = result.data;
+  const books = activeGenre ? filteredBookData.allBooks : bookData.allBooks;
 
-  const filteredBooks = activeGenre
-    ? books.filter((book) => book.genres.includes(activeGenre))
-    : books;
+  const handleGenreClick = (e) => {
+    const genre = e.target.value;
+    setActiveGenre(genre);
+
+    console.log(genre);
+  };
 
   return (
     <div>
@@ -52,7 +65,7 @@ const Books = (props) => {
                 backgroundColor: genre === activeGenre ? 'lightgreen' : null,
               }}
               value={genre}
-              onClick={(e) => setActiveGenre(e.target.value)}
+              onClick={handleGenreClick}
               key={genre}
             >
               {genre}
@@ -63,7 +76,7 @@ const Books = (props) => {
       <p>
         Showing {activeGenre ? `books in genre ${activeGenre}` : 'all books'}
       </p>
-      <BookList books={filteredBooks} />
+      <BookList books={books} />
     </div>
   );
 };

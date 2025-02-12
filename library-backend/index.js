@@ -1,16 +1,18 @@
+import { useServer } from 'graphql-ws/use/ws';
+import { WebSocketServer } from 'ws';
+
 import { ApolloServer } from '@apollo/server';
-import { startStandaloneServer } from '@apollo/server/standalone';
 import { expressMiddleware } from '@apollo/server/express4';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import { makeExecutableSchema } from '@graphql-tools/schema';
-import express from 'express';
 import cors from 'cors';
+import express from 'express';
 import http from 'http';
 
 import mongoose from 'mongoose';
 import User from './models/user.js';
-import typeDefs from './schema.js';
 import resolvers from './resolvers.js';
+import typeDefs from './schema.js';
 
 mongoose.set('strictQuery', false);
 
@@ -33,9 +35,29 @@ mongoose
 const start = async () => {
   const app = express();
   const httpServer = http.createServer(app);
+
+  const wsServer = new WebSocketServer({
+    server: httpServer,
+    path: '/',
+  });
+
+  const schema = makeExecutableSchema({ typeDefs, resolvers });
+  const serverCleanup = useServer({ schema }, wsServer);
+
   const server = new ApolloServer({
     schema: makeExecutableSchema({ typeDefs, resolvers }),
-    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+    plugins: [
+      ApolloServerPluginDrainHttpServer({ httpServer }),
+      {
+        async serverWillStart() {
+          return {
+            async drainServer() {
+              await serverCleanup.dispose();
+            },
+          };
+        },
+      },
+    ],
   });
   await server.start();
   app.use(
@@ -50,9 +72,7 @@ const start = async () => {
             auth.substring(7),
             process.env.JWT_SECRET
           );
-          const currentUser = await User.findById(decodedToken.id).populate(
-            'friends'
-          );
+          const currentUser = await User.findById(decodedToken.id);
           return { currentUser };
         }
       },

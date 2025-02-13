@@ -27,15 +27,15 @@ const resolvers = {
     },
     allAuthors: async () => {
       const authors = await Author.find({});
-      return authors.map((author) => {
-        return {
-          name: author.name,
-          born: author.born,
-          bookCount: Book.collection.countDocuments({ author: author._id }),
-        };
-      });
+
+      return authors;
     },
     me: async (root, args, context) => context.currentUser,
+  },
+  Author: {
+    bookCount: async (root, args, { loaders }) => {
+      return loaders.bookCount.load(root._id);
+    },
   },
   Mutation: {
     addBook: async (root, args, { currentUser }) => {
